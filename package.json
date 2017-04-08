@@ -28,6 +28,7 @@
   "author": "Jason Miller <jason@developit.ca>",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.16.1",
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
@@ -36,7 +37,8 @@
     "fluent-ffmpeg": "^2.1.0",
     "morgan": "^1.8.0",
     "resource-router-middleware": "^0.6.0",
-    "streamifier": "^0.1.1"
+    "streamifier": "^0.1.1",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",

@@ -1,5 +1,9 @@
 import ffmpeg from 'fluent-ffmpeg';
 import streamifier from 'streamifier';
+import uuid from 'uuid/v4';
+import fs from 'fs';
+
+import axios from 'axios';
 
 
 /**	Creates a callback that proxies node callback style arguments to an Express Response object.
@@ -23,15 +27,67 @@ export function toRes(res, status=200) {
 }
 
 
-export function toFlac(inBuffer, outName) {
+export function transcriptText(inBuffer, outFilePath, onFinish) {
 
 	let inStream = streamifier.createReadStream(inBuffer);
+
+
+	let headers = { Authorization: 'Bearer ya29.El8nBAD7O3Elk-8yBNoIqsjkGgGG1LB1F3eZ-A5Fi7SgZ0OFYYOScL0H2OKtF4XmcAW6-KLIFd4j27YWUXFq1dgUr9mcc2EWiKIG70EVfbffKIVXdjtts4_B-MfcjaZ7tA'};
 
 	ffmpeg(inStream)
 		.format('flac')
 		.on('error', err => {
-			console.log('error! marco estúpido: ' + err);
+			onFinish.json({
+				status: 'error',
+				result: 'Could not transform file to flac'
+			})
 		})
-		.on('end', () => console.log('ready'))
-		.save(`${__dirname}/../assets/${outName}.flac`);
+		.on('end', () => {
+			let buffer = fs.readFileSync(outFilePath);
+			let content = buffer.toString('base64');
+
+			axios.post('https://speech.googleapis.com/v1beta1/speech:syncrecognize', {
+						config: {
+							encoding:"FLAC",
+							languageCode:"es-ES"
+						},
+						audio: { content },
+					},
+					{ headers })
+				.then( res =>  {
+					onFinish.json({
+						status: 'success',
+						result: res.data.results[0].alternatives[0].transcript
+					})
+				})
+				.catch( err =>
+					onFinish.json({
+						status: 'error',
+						result: err
+					}))
+		})
+		.save(outFilePath);
+
+}
+
+// export function toTextPromise(filename) {
+
+// 	let buffer = fs.readFileSync(filename);
+// 	let content = buffer.toString('base64');
+// 	let headers = { Authorization: 'Bearer ya29.El8nBOmxBy5BGi6o_FO1CC5BumV2a8OPkwih6oKjvF3rMVpIGdIttJRtf1AAxGWkulSwN60roEQPmOGRDFQoyHWrswixWh-g2iKKk0VWNaYU4HxTLpgEt9_w2mC9pLUS3w'};
+
+// 	return axios.post('https://speech.googleapis.com/v1beta1/speech:syncrecognize', 
+// 				{
+// 					config: {
+// 						encoding:"FLAC",
+// 						languageCode:"es-ES"
+// 					},
+// 					audio: { content },
+// 				}, 
+// 				{ headers });
+// }
+
+
+export function randomFileName(){
+	return uuid() + '.flac';
 }

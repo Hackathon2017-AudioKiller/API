@@ -22,9 +22,9 @@ app.use(cors({
 
 app.use(fileUpload());
 
-// app.use(bodyParser.json({
-// 	limit : config.bodyLimit
-// }));
+app.use(bodyParser.json({
+	limit : config.bodyLimit
+}));
 
 // connect to db
 initializeDb( db => {
