@@ -44,7 +44,9 @@ export function transcriptAudio(inBuffer, outFilePath, onFinish) {
 				result: 'Could not transform file to flac'
 			})
 		})
-		.on('end', () => textify(outFilePath, onFinish))
+		.on('end', () => {
+			textify(outFilePath, onFinish)
+		})
 		.save(outFilePath);
 }
 
@@ -62,7 +64,6 @@ export function randomFileName(){
 }
 
 function textify(outFilePath, onFinish){
-	console.log(outFilePath);
 	let config = {
 				encoding: 'FLAC',
 				languageCode: 'es-ES',
