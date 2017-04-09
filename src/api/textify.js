@@ -11,7 +11,7 @@ export default ({ config, db }) => resource({
 	create({ body, files }, res) {
 		if ( files && files.audio ) {
 			let { name, data } = files.audio;
-			let outName = `${__dirname}/../assets/${randomFileName()}`;			
+			let outName = `${__dirname}/../assets/${randomFileName('')}`;			
 			if (/.*.mp4/.exec(name)){
 				let inName = `${__dirname}/../assets/${name}`;			
 				fs.writeFile(inName, data, function(err) {

@@ -71,22 +71,6 @@ function textify(outFilePath, onFinish){
 				languageCode: 'es-ES',
 				verbose: true,
 	};
-	// speechClient.startRecognition(outFilePath, config)
-	// 		.then((results) => {
-	// 			return results[0].promise();
-	// 		}).then((transcription) => {
-	// 			console.log(transcription);
-	// 			onFinish.json({
-	// 				status: 'success',
-	// 				result: transcription[0],
-	// 			})
-	// 		}).catch( (err) => {
-	// 			onFinish.json({
-	// 				status: 'error',
-	// 				result: err,
-	// 			})
-	// 		});
-
 	let spanish = speechClient.startRecognition(outFilePath, config)
 		.then((results) => {
 			return results[0].promise();
