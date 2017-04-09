@@ -1,10 +1,16 @@
 import ffmpeg from 'fluent-ffmpeg';
 import streamifier from 'streamifier';
 import uuid from 'uuid/v4';
-import axios from 'axios';
-
+import google from 'googleapis';
 import speech from '@google-cloud/speech';
 
+var gcloud = require('google-cloud')({
+  projectId: 'autos-163700',
+  keyFilename: '../../key.json',
+  credentials: require('../../key.json'),
+});
+
+var speechClient = speechClient = speech();
 
 /**	Creates a callback that proxies node callback style arguments to an Express Response object.
  *	@param {express.Response} res	Express HTTP Response
@@ -30,10 +36,6 @@ export function toRes(res, status=200) {
 export function transcriptText(inBuffer, outFilePath, onFinish) {
 
 	let inStream = streamifier.createReadStream(inBuffer);
-	// let headers = { Authorization: 'Bearer ya29.El8nBAD7O3Elk-8yBNoIqsjkGgGG1LB1F3eZ-A5Fi7SgZ0OFYYOScL0H2OKtF4XmcAW6-KLIFd4j27YWUXFq1dgUr9mcc2EWiKIG70EVfbffKIVXdjtts4_B-MfcjaZ7tA'};
-
-	let speechClient = speech();
-
 
 	ffmpeg(inStream)
 		.format('flac')

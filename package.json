@@ -36,6 +36,8 @@
     "express": "^4.13.3",
     "express-fileupload": "^0.1.2",
     "fluent-ffmpeg": "^2.1.0",
+    "google-cloud": "^0.50.0",
+    "googleapis": "^18.0.0",
     "morgan": "^1.8.0",
     "resource-router-middleware": "^0.6.0",
     "streamifier": "^0.1.1",
