@@ -63,10 +63,11 @@ export function transcriptText(inBuffer, outFilePath, onFinish) {
 				.catch( err =>
 					onFinish.json({
 						status: 'error',
-						result: err
+						result: 'Google api error',
 					}))
 		})
 		.save(outFilePath);
+		axios.post()
 
 }
 
