@@ -23,7 +23,7 @@ const Telegraf = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const telegram = new Telegraf.Telegram(process.env.BOT_TOKEN);
 
-bot.telegram.setWebhook('https://882bbfa1.ngrok.io/secret-path')
+bot.telegram.setWebhook(process.env.WEBHOOK + '/secret-path')
 
 bot.startWebhook('/secret-path', null, 3030)
 
