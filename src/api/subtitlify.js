@@ -5,8 +5,8 @@ import SpeechToTextV1 from 'watson-developer-cloud/speech-to-text/v1';
 import path from 'path';
 
 const speech_to_text = new SpeechToTextV1 ({
-  username: '18bc1d95-ee23-41da-923a-582f595e94bc',
-  password: 'pXfD3gzLv08z'
+  username: process.env.S2T_USER, 
+  password:  process.env.S2T_PASS,
 });
 
 
