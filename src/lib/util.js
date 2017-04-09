@@ -32,8 +32,7 @@ export function toRes(res, status=200) {
 	};
 }
 
-
-export function transcriptText(inBuffer, outFilePath, onFinish) {
+export function transcriptAudio(inBuffer, outFilePath, onFinish) {
 
 	let inStream = streamifier.createReadStream(inBuffer);
 
@@ -45,43 +44,72 @@ export function transcriptText(inBuffer, outFilePath, onFinish) {
 				result: 'Could not transform file to flac'
 			})
 		})
-		.on('end', () => {
-			speechClient.startRecognition(outFilePath, {
-				encoding: 'FLAC',
-				languageCode: 'es-ES'
-			}).then((results) => {
-				const operation = results[0];
-				// Get a Promise represention of the final result of the job
-				return operation.promise();
-			}).then((transcription) => {
-				console.log(`Transcription: ${transcription}`);
-				onFinish.json({
-					status: 'success',
-					result: transcription[0],
-				})
-			});
-		})
+		.on('end', () => textify(outFilePath, onFinish))
 		.save(outFilePath);
 }
 
-// export function toTextPromise(filename) {
 
-// 	let buffer = fs.readFileSync(filename);
-// 	let content = buffer.toString('base64');
-// 	let headers = { Authorization: 'Bearer ya29.El8nBOmxBy5BGi6o_FO1CC5BumV2a8OPkwih6oKjvF3rMVpIGdIttJRtf1AAxGWkulSwN60roEQPmOGRDFQoyHWrswixWh-g2iKKk0VWNaYU4HxTLpgEt9_w2mC9pLUS3w'};
+export function transcriptVideo(inFilePath, outFilePath, onFinish) {
+	var exec = require('child_process').exec;
+	var cmd = `ffmpeg -i ${inFilePath} -ac 1 -ab 64000 -ar 16000 ${outFilePath}`;
+	exec(cmd, () => textify(outFilePath, onFinish));
+}
 
-// 	return axios.post('https://speech.googleapis.com/v1beta1/speech:syncrecognize', 
-// 				{
-// 					config: {
-// 						encoding:"FLAC",
-// 						languageCode:"es-ES"
-// 					},
-// 					audio: { content },
-// 				}, 
-// 				{ headers });
-// }
 
 
 export function randomFileName(){
 	return uuid() + '.flac';
+}
+
+function textify(outFilePath, onFinish){
+	console.log(outFilePath);
+	let config = {
+				encoding: 'FLAC',
+				languageCode: 'es-ES',
+				verbose: true,
+	};
+	// speechClient.startRecognition(outFilePath, config)
+	// 		.then((results) => {
+	// 			return results[0].promise();
+	// 		}).then((transcription) => {
+	// 			console.log(transcription);
+	// 			onFinish.json({
+	// 				status: 'success',
+	// 				result: transcription[0],
+	// 			})
+	// 		}).catch( (err) => {
+	// 			onFinish.json({
+	// 				status: 'error',
+	// 				result: err,
+	// 			})
+	// 		});
+
+	let spanish = speechClient.startRecognition(outFilePath, config)
+		.then((results) => {
+			return results[0].promise();
+		});
+	let english = speechClient.startRecognition(outFilePath, {
+			encoding: 'FLAC',
+			languageCode: 'en-US',
+			verbose: true
+		})
+		.then((results) => {
+			return results[0].promise();
+		});
+
+	Promise.all([spanish, english])
+		.then( results => {
+			let es = results[0][0][0];
+			let en = results[1][0][0];
+			onFinish.json({
+				status: 'success',
+				result: es.confidence > en.confidence ? es.transcript : en.transcript,
+			})
+		})
+		.catch( err => {
+			onFinish.json({
+				status: 'error',
+				result: err,
+			});
+		})
 }
