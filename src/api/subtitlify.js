@@ -43,7 +43,7 @@ export default ({ config, db }) => resource({
                             }
                             else{
                                 createSRT(subtName, transcript.results);
-                                let cmd = `ffmpeg -i ${videoName} -vf subtitles=${subtName} ${outName}`;
+                                let cmd = `ffmpeg -i ${videoName} -vf subtitles=${subtName} -strict -2 ${outName}`;
                                 var exec = require('child_process').exec;
                                 exec(cmd, (error, stdout, stderr) => {
                                     if (error){
