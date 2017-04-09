@@ -3,6 +3,8 @@ import streamifier from 'streamifier';
 import uuid from 'uuid/v4';
 import google from 'googleapis';
 import speech from '@google-cloud/speech';
+import fs from 'fs';
+
 
 var gcloud = require('google-cloud')({
   projectId: 'autos-163700',
@@ -57,8 +59,8 @@ export function transcriptVideo(inFilePath, outFilePath, onFinish) {
 
 
 
-export function randomFileName(){
-	return uuid() + '.flac';
+export function randomFileName(extension){
+	return uuid() + extension;
 }
 
 function textify(outFilePath, onFinish){
@@ -112,4 +114,34 @@ function textify(outFilePath, onFinish){
 				result: err,
 			});
 		})
+}
+
+export function audify(videoPath, videoAudioPath) {
+	var exec = require('child_process').exec;
+	let videoPathAudio = videoPath + '.flac'; 
+	let cmd = `ffmpeg -i ${videoPath} -ac 1 -ab 64000 -ar 16000 ${videoAudioPath}`;
+
+	return new Promise( resolve => exec(cmd, resolve));
+}
+
+
+export function createSRT(filename, results){
+	
+	let outfile = fs.createWriteStream(filename);
+	
+	let currentSubtIdx = 0;
+	let subtitles = [];
+
+	for (let i=0; i < results.length; i++){
+
+		let { alternatives } = results[i];
+		let { timestamps, transcript } = alternatives[0];
+
+		let startTime = timestamps[0][1];
+		let endTime = timestamps[timestamps.length-1][2];
+
+		subtitles.push(`${++currentSubtIdx}\n00:00:${startTime.toFixed(3)} --> 00:00:${endTime.toFixed(3)}\n${transcript}\n\n`);
+	}
+	outfile.write(subtitles.join('\n'));
+	outfile.close();
 }
