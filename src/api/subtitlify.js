@@ -1,13 +1,7 @@
 import resource from 'resource-router-middleware';
-import { createSRT, randomFileName, audify } from '../lib/util';
+import { createSRT, randomFileName, audify, speech_to_text } from '../lib/util';
 import fs from 'fs';
-import SpeechToTextV1 from 'watson-developer-cloud/speech-to-text/v1';
 import path from 'path';
-
-const speech_to_text = new SpeechToTextV1 ({
-  username: process.env.S2T_USER, 
-  password:  process.env.S2T_PASS,
-});
 
 
 export default ({ config, db }) => resource({
@@ -50,7 +44,7 @@ export default ({ config, db }) => resource({
                                         res.json({status: 'error', result: 'Cant add subtitles to video'})
                                     }
                                     else {
-                                        res.sendFile(path.resolve(outName));
+                                        res.json({status: 'success', result: `http://104.131.85.110/assets/${outName}`});
                                     }
                                 });
                             }

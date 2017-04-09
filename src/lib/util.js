@@ -4,6 +4,13 @@ import uuid from 'uuid/v4';
 import google from 'googleapis';
 import speech from '@google-cloud/speech';
 import fs from 'fs';
+import SpeechToTextV1 from 'watson-developer-cloud/speech-to-text/v1';
+
+
+export const speech_to_text = new SpeechToTextV1 ({
+  username: process.env.S2T_USER, 
+  password:  process.env.S2T_PASS,
+});
 
 
 var gcloud = require('google-cloud')({
