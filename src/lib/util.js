@@ -1,9 +1,9 @@
 import ffmpeg from 'fluent-ffmpeg';
 import streamifier from 'streamifier';
 import uuid from 'uuid/v4';
-import fs from 'fs';
-
 import axios from 'axios';
+
+import speech from '@google-cloud/speech';
 
 
 /**	Creates a callback that proxies node callback style arguments to an Express Response object.
@@ -30,9 +30,10 @@ export function toRes(res, status=200) {
 export function transcriptText(inBuffer, outFilePath, onFinish) {
 
 	let inStream = streamifier.createReadStream(inBuffer);
+	// let headers = { Authorization: 'Bearer ya29.El8nBAD7O3Elk-8yBNoIqsjkGgGG1LB1F3eZ-A5Fi7SgZ0OFYYOScL0H2OKtF4XmcAW6-KLIFd4j27YWUXFq1dgUr9mcc2EWiKIG70EVfbffKIVXdjtts4_B-MfcjaZ7tA'};
 
+	let speechClient = speech();
 
-	let headers = { Authorization: 'Bearer ya29.El8nBAD7O3Elk-8yBNoIqsjkGgGG1LB1F3eZ-A5Fi7SgZ0OFYYOScL0H2OKtF4XmcAW6-KLIFd4j27YWUXFq1dgUr9mcc2EWiKIG70EVfbffKIVXdjtts4_B-MfcjaZ7tA'};
 
 	ffmpeg(inStream)
 		.format('flac')
@@ -43,32 +44,18 @@ export function transcriptText(inBuffer, outFilePath, onFinish) {
 			})
 		})
 		.on('end', () => {
-			let buffer = fs.readFileSync(outFilePath);
-			let content = buffer.toString('base64');
-
-			axios.post('https://speech.googleapis.com/v1beta1/speech:syncrecognize', {
-						config: {
-							encoding:"FLAC",
-							languageCode:"es-ES"
-						},
-						audio: { content },
-					},
-					{ headers })
-				.then( res =>  {
-					onFinish.json({
-						status: 'success',
-						result: res.data.results[0].alternatives[0].transcript
-					})
-				})
-				.catch( err =>
-					onFinish.json({
-						status: 'error',
-						result: 'Google api error',
-					}))
+			console.log('ended!');
+			speechClient.startRecognition(outFilePath, {
+				encoding: 'FLAC'
+			}).then((results) => {
+				const operation = results[0];
+				// Get a Promise represention of the final result of the job
+				return operation.promise();
+			}).then((transcription) => {
+				console.log(`Transcription: ${transcription}`);
+			});
 		})
 		.save(outFilePath);
-		axios.post()
-
 }
 
 // export function toTextPromise(filename) {

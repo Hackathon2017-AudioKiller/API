@@ -28,6 +28,7 @@
   "author": "Jason Miller <jason@developit.ca>",
   "license": "MIT",
   "dependencies": {
+    "@google-cloud/speech": "^0.8.0",
     "axios": "^0.16.1",
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",
