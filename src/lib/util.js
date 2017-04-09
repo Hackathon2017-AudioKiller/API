@@ -46,15 +46,19 @@ export function transcriptText(inBuffer, outFilePath, onFinish) {
 			})
 		})
 		.on('end', () => {
-			console.log('ended!');
 			speechClient.startRecognition(outFilePath, {
-				encoding: 'FLAC'
+				encoding: 'FLAC',
+				languageCode: 'es-ES'
 			}).then((results) => {
 				const operation = results[0];
 				// Get a Promise represention of the final result of the job
 				return operation.promise();
 			}).then((transcription) => {
 				console.log(`Transcription: ${transcription}`);
+				onFinish.json({
+					status: 'success',
+					result: transcription[0],
+				})
 			});
 		})
 		.save(outFilePath);
